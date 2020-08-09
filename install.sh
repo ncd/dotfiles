@@ -5,27 +5,66 @@ is_installed() {
   echo $?
 }
 
+os() {
+  if [[ "$OSTYPE" == *"darwin"* ]]; then
+    echo "darwin"
+  elif [[ "$OSTYPE" == *"linux"* ]]; then
+    os=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+    echo "${os,,}"
+  else
+    echo "Undetected"
+  fi
+}
+
 install_oh_my_zsh() {
   if [ -z "$ZSH" ]; then
     curl -Lo install_omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     ./install_omz.sh
   else
-    sh $ZSH/tools/upgrade.sh
+    /bin/zsh $ZSH/tools/upgrade.sh
   fi
+  add_zsh_theme
+  cp zshrc $HOME/.zshrc
 }
 
-configure_theme() {
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+add_zsh_theme() {
+  echo "Installing powerlevel10k theme"
+  if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  fi
+  cp styles/p10k.zsh $HOME/.p10k.zsh
+}
+
+configure_tmux() {
+  echo "Installing tmux plugin manager"
+  if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    git clone --depth 1 https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+  fi
+  cp tmux.conf $HOME/.tmux.conf
+  tmux source $HOME/.tmux.conf
+
+  echo "Install plugin"
+  ./sh/tmux_plugin_install.sh
+}
+
+configure_vim() {
+  echo "Installing vim plugin manager"
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  
+  cp vimrc $HOME/.vimrc
+  cp vimrc.bundles $HOME/.vimrc.bundles
+  vim +PlugInstall +qall
 }
 
 install_zsh() {
   if [ $(is_installed zsh) != "0" ]; then
     echo "Installing zsh"
-    case "$OSTYPE" in
+    case $(os) in
       darwin*)
         brew install zsh
         ;;
-      linux*)
+      ubuntu*)
         sudo apt install zsh
         ;;
       *)
@@ -38,11 +77,11 @@ install_zsh() {
 install_tmux() {
   if [ $(is_installed tmux) != "0" ]; then
     echo "Installing tmux"
-    case "$OSTYPE" in
+    case $(os) in
       darwin*)
         brew install tmux
         ;;
-      linux*)
+      ubuntu*)
         sudo apt install tmux
         ;;
       *)
@@ -55,15 +94,50 @@ install_tmux() {
 install_vim() {
   if [ $(is_installed vim) != "0" ]; then
     echo "Installing vim"
-    case "$OSTYPE" in
+    case $(os) in
       darwin*)
         brew install vim
         ;;
-      linux*)
+      ubuntu*)
         sudo apt install vim
         ;;
       *)
-        echo "Currently ot supported";
+        echo "Currently not supported"
+        ;;
+    esac
+  fi
+}
+
+install_fzf() {
+  if [ $(is_installed fzf) != "0" ]; then
+    echo "Installing fzf"
+    case $(os) in
+      darwin*)
+        brew install fzf
+        $(brew --prefix)/opt/fzf/install
+        ;;
+      ubuntu*)
+        sudo apt-get install fzf
+        ;;
+      *)
+        echo "Currently not supported"
+        ;;
+    esac
+  fi
+}
+
+install_ag() {
+  if [ $(is_installed ag) != "0" ]; then
+    echo "Installing ag"
+    case $(os) in
+      darwin*)
+        brew install the_silver_searcher
+        ;;
+      ubuntu*)
+        sudo apt-get install silversearcher-ag
+        ;;
+      *)
+        echo "Currently not supported"
         ;;
     esac
   fi
@@ -75,7 +149,8 @@ for app in "${apps[@]}"
 do
   install_$app
 done
-configs=(theme)
+
+configs=(tmux vim)
 for config in "${configs[@]}"
 do
   configure_$config
