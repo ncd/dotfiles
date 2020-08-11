@@ -18,13 +18,14 @@ os() {
 
 install_oh_my_zsh() {
   if [ -z "$ZSH" ]; then
-    curl -Lo install_omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-    ./install_omz.sh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
+      echo "Could not install Oh My Zsh" >/dev/stderr
+      exit 1
+    }
   else
     /bin/zsh $ZSH/tools/upgrade.sh
   fi
   add_zsh_theme
-  cp zshrc $HOME/.zshrc
 }
 
 add_zsh_theme() {
@@ -55,6 +56,16 @@ configure_vim() {
   cp vimrc $HOME/.vimrc
   cp vimrc.bundles $HOME/.vimrc.bundles
   vim +PlugInstall +qall
+}
+
+configure_zsh() {
+  echo "Configure zsh"
+  sed -i -E "s/ZSH_THEME=\".*\"/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/" $HOME/.zshrc
+  if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ] ; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    sed -i -E "s/(plugins.*)\)/\1 zsh-autosuggestions)/" $HOME/.zshrc
+  fi
+  cp zshrc $HOME/.zshrc.local
 }
 
 install_zsh() {
@@ -150,7 +161,7 @@ do
   install_$app
 done
 
-configs=(tmux vim)
+configs=(tmux vim zsh)
 for config in "${configs[@]}"
 do
   configure_$config
