@@ -23,7 +23,9 @@ set showcmd       " display incomplete commands
 set incsearch     " do incremental searching
 set laststatus=2  " Always display the status line
 set autowrite     " Automatically :write before running commands
-
+set expandtab     " Convert tab to space all cases
+set tabstop=2
+set shiftwidth=2
 set bg=dark       " Background style to dark
 
 " Numbers
