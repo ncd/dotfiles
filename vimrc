@@ -36,13 +36,21 @@ set numberwidth=4
 
 hi CursorLineNR guifg=yellow
 
-" NERD tree configuration
+set rtp+=/usr/bin/fzf
+
+" Key binding
+let g:mapleader = "\<Space>"
+let g:maplocalleader = ","
+
+" which-key
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :WhichKey ','<CR>
+" NERDtree
 noremap <C-d> :NERDTreeToggle<CR>
 nnoremap F :NERDTreeFind<CR>
 let NERDTreeShowHidden=1
 
 " fzf
-set rtp+=/usr/bin/fzf
 
 noremap ` :Files<CR>
 noremap ; :Buffers<CR>

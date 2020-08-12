@@ -17,7 +17,7 @@ os() {
 }
 
 install_oh_my_zsh() {
-  if [ -z "$ZSH" ]; then
+  if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
       echo "Could not install Oh My Zsh" >/dev/stderr
       exit 1
@@ -34,6 +34,9 @@ add_zsh_theme() {
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
   fi
   cp styles/p10k.zsh $HOME/.p10k.zsh
+  cp styles/dircolor $HOME/.dircolors
+  echo 'POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true' >> $HOME/.zshrc
+  sed -i -E "s/ZSH_THEME=\".*\"/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/" $HOME/.zshrc
 }
 
 configure_tmux() {
@@ -60,12 +63,12 @@ configure_vim() {
 
 configure_zsh() {
   echo "Configure zsh"
-  sed -i -E "s/ZSH_THEME=\".*\"/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/" $HOME/.zshrc
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ] ; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     sed -i -E "s/(plugins.*)\)/\1 zsh-autosuggestions)/" $HOME/.zshrc
   fi
   cp zshrc $HOME/.zshrc.local
+  echo "source $HOME/.zshrc.local" >> $HOME/.zshrc
 }
 
 install_zsh() {

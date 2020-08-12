@@ -6,5 +6,6 @@ Plug 'junegunn/fzf.vim'
 Plug 'ycm-core/YouCompleteMe'
 Plug 'morhetz/gruvbox'
 Plug 'preservim/nerdtree'
+Plug 'liuchengxu/vim-which-key'
 
 call plug#end()

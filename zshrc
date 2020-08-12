@@ -1,3 +1,5 @@
+eval "$(dircolors $HOME/.dircolors)"
+
 # Autosuggestion highlight style
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#949494"
 
