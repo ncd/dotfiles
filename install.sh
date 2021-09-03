@@ -1,4 +1,6 @@
 #!/bin/bash
+cd "$(dirname "$0")"
+DOTFILES=$(pwd)
 
 is_installed() {
   type $1 >/dev/null 2>&1
@@ -25,7 +27,6 @@ install_oh_my_zsh() {
   else
     /bin/zsh $ZSH/tools/upgrade.sh
   fi
-  cp zshrc $HOME/.zshrc
 }
 
 add_zsh_theme() {
@@ -33,10 +34,6 @@ add_zsh_theme() {
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
   fi
-  cp styles/p10k.zsh $HOME/.p10k.zsh
-  cp styles/dircolor $HOME/.dircolors
-  echo 'POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true' >> $HOME/.zshrc
-  sed -i -E "s/ZSH_THEME=\".*\"/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/" $HOME/.zshrc
 }
 
 # https://github.com/jeffreytse/zsh-vi-mode
@@ -44,7 +41,13 @@ add_zsh_vi_mode() {
   echo "Installing zsh-vi-mode"
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-vi-mode" ]; then
     git clone --depth 1 https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-vi-mode
-    echo "plugins+=(zsh-vi-mode)" >> $HOME/.zshrc
+  fi
+}
+
+add_fast_syntax_highlighting() {
+  echo "Installing fast-syntax-highlighting"
+  if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting" ]; then
+    git clone --depth 1 https://github.com/zdharma/fast-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
   fi
 }
 
@@ -53,8 +56,6 @@ add_fzf_tab() {
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]; then
     git clone --depth 1 https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
   fi
-  echo "plugins+=(fzf-tab)" >> $HOME/.zshrc
-  echo "enable-fzf-tab" >> $HOME/.zshrc
 }
 
 add_z() {
@@ -62,7 +63,6 @@ add_z() {
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-z" ]; then
     git clone --depth 1 https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
   fi
-  echo "plugins+=(zsh-z)" >> $HOME/.zshrc
 }
 
 add_fz() {
@@ -70,40 +70,26 @@ add_fz() {
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fz" ]; then
     git clone --depth 1 https://github.com/changyuheng/fz.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fz
   fi
-  echo "plugins+=(fz)" >> $HOME/.zshrc
 }
 
 add_zsh_autosuggestions() {
   echo "Installing zsh-autosuggestions"
   if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-    git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
   fi
-  echo "plugins+=(zsh-autosuggestions)" >> $HOME/.zshrc
-}
-
-add_git_completion() {
-  echo "Installing git-completion"
-  if [ ! -d "$HOME/.git-completion" ]; then
-    mkdir $HOME/.git-completion
-  fi
-  curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o $HOME/.git-completion/git-completion.bash
-  curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh -o $HOME/.git-completion/_git
-  echo "fpath=(~/.git-completion \$fpath)" >> $HOME/.zshrc
 }
 
 configure_zsh() {
   echo "Configuring zsh"
-  add_zsh_autosuggestions
-  add_git_completion
   add_zsh_theme
+  add_fzf_tab
+  add_zsh_autosuggestions
+  add_fast_syntax_highlighting
   add_zsh_vi_mode
-  # add_fzf_tab
   add_z
   add_fz
+  cp zshrc.zsh $HOME/.zshrc
   mk_rc
-  cat conf/zstyle.conf >> $HOME/.zshrc
-  echo "zstyle ':completion:*:*:git:*' script ~/.git-completion/git-completion.bash" >> $HOME/.zshrc
-  echo "autoload -Uz compinit && compinit" >> $HOME/.zshrc
 }
 
 configure_tmux() {
@@ -111,11 +97,11 @@ configure_tmux() {
   if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
     git clone --depth 1 https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
   fi
-  cp conf/tmux.conf $HOME/.tmux.conf
+  cp tmux/tmux.conf $HOME/.tmux.conf
   tmux source $HOME/.tmux.conf
 
   echo "Install plugin"
-  ./sh/tmux/tmux_plugin_install.sh
+  ./tmux/tmux_plugin_install.sh
 }
 
 configure_vim() {
@@ -123,19 +109,9 @@ configure_vim() {
   curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   
-  cp vimrc $HOME/.vimrc
-  cp vimrc.bundles $HOME/.vimrc.bundles
+  cp vim/vimrc $HOME/.vimrc
+  cp vim/vimrc.bundles $HOME/.vimrc.bundles
   vim +PlugInstall +qall
-}
-
-configure_zsh() {
-  echo "Configure zsh"
-  if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ] ; then
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    sed -i -E "s/(plugins.*)\)/\1 zsh-autosuggestions)/" $HOME/.zshrc
-  fi
-  cp zshrc $HOME/.zshrc.local
-  echo "source $HOME/.zshrc.local" >> $HOME/.zshrc
 }
 
 install_zsh() {
@@ -261,7 +237,7 @@ merge_shrc() {
 }
 
 mk_rc() {
-	cd sh
+	cd zsh
 	if command -v bash >/dev/null 2>&1; then
 		merge_shrc bash >>"$HOME/.bashrc"
 	fi
@@ -284,3 +260,8 @@ for config in "${configs[@]}"
 do
   configure_$config
 done
+
+cp p10k.zsh $HOME/.p10k.zsh
+cp dircolor $HOME/.dircolors
+
+# $HOME/.zshrc

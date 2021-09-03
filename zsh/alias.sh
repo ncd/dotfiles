@@ -18,3 +18,9 @@ fi
 # Remove current empty directory.
 alias rmcdir='cd ..; rmdir $OLDPWD || cd $OLDPWD'
 alias dir='command ls -lSrah'
+
+alias vi="vim"
+alias src="source $HOME/.zshrc"
+
+alias detach="tmux detach"
+
