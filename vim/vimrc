@@ -1,7 +1,13 @@
 " Set compatibility to Vim only
 set nocompatible
-
+set splitbelow
+set autochdir
 autocmd vimenter * colorscheme gruvbox
+autocmd vimenter * NERDTree
+autocmd vimenter * wincmd p
+" autocmd vimenter * terminal
+" autocmd vimenter * wincmd k
+autocmd vimenter * 10 wincmd +
 
 " Helps force plug-ins to load correctly when it is turned back on below.
 filetype off
@@ -59,3 +65,8 @@ noremap ; :Buffers<CR>
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 
 set backspace=indent,eol,start
+
+let g:NERDTreeMinimalUI = v:true
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_log_level = 'debug'
+
