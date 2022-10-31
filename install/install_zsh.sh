@@ -82,8 +82,6 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
         echo "Could not install Oh My Zsh" >/dev/stderr
         exit 1
     }
-else
-    /bin/zsh $ZSH/tools/upgrade.sh
 fi
 
 configure_zsh

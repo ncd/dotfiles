@@ -77,7 +77,6 @@ autoload -Uz compinit && compinit
 plugins=(
   git
   fzf-tab
-  z
   zsh-z
   fz
   zsh-vi-mode

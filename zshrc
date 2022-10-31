@@ -14,7 +14,7 @@ export LANG=en_US.UTF-8
 plugins=(
   git
   kubectl
-  z
+  zsh-z
   )
 
 source $ZSH/oh-my-zsh.sh
