@@ -17,6 +17,9 @@ plugins=(
   zsh-z
   )
 
+# OMZ Disable update check
+DISABLE_UPDATE_PROMPT=true
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration

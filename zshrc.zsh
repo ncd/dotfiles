@@ -84,6 +84,9 @@ plugins=(
   zsh-autosuggestions
 )
 
+# OMZ Disable update check
+DISABLE_UPDATE_PROMPT=true
+
 source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
